@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:api_practice/zip_code.dart';
+//import 'package:api_practice/zip_code.dart';
 import 'package:http/http.dart';
 
 class Weather {
