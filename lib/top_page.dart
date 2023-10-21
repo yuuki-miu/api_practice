@@ -15,128 +15,7 @@ class _TopPageState extends State<TopPage> {
   String? errorMessage = null;
   Weather? currentWeather;
 
-  List<Weather> hourlyWeather = [
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '晴れ',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 10),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: 'くもり',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 11),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雨',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 12),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '晴れ',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 10),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: 'くもり',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 11),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雨',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 12),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '晴れ',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 10),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: 'くもり',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 11),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雨',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 12),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 13),
-        rainyPercent: 30),
-  ];
+  List<Weather>? threeHourlyWeather;
 
   List<Weather> dailyWeather = [
     Weather(
@@ -280,6 +159,8 @@ class _TopPageState extends State<TopPage> {
                     address = response['address'].toString();
                     errorMessage = null;
                     currentWeather = await Weather.getCurrentWeather(value);
+                    threeHourlyWeather = await Weather.get3HourlyWeather(
+                        lon: currentWeather!.lon!, lat: currentWeather!.lat!);
                   }
                   setState(() {});
                 },
@@ -322,31 +203,30 @@ class _TopPageState extends State<TopPage> {
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: hourlyWeather.map((weather) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 8.0),
-                    child: Column(
-                      children: [
-                        Text('${DateFormat('H').format(weather.time!)}時'),
-                        Text(
-                          '${weather.rainyPercent}%',
-                          style: TextStyle(color: Colors.lightBlueAccent),
-                        ),
-                        Icon(Icons.wb_sunny_sharp),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            '${weather.temp}℃',
-                            style: TextStyle(fontSize: 18),
+              child: threeHourlyWeather == null
+                  ? Container()
+                  : Row(
+                      children: threeHourlyWeather!.map((weather) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 8.0),
+                          child: Column(
+                            children: [
+                              Text('${DateFormat('H').format(weather.time!)}時'),
+                              Image.network(
+                                  'https://openweathermap.org/img/wn/${weather.icon}.png'),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  '${weather.temp}℃',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
             ),
             Divider(
               height: 0,
