@@ -12,133 +12,12 @@ class TopPage extends StatefulWidget {
 
 class _TopPageState extends State<TopPage> {
   String address = '-';
-  String? errorMessage = null;
+  String? errorMessage;
   Weather? currentWeather;
 
   List<Weather>? threeHourlyWeather;
 
-  List<Weather> dailyWeather = [
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 1, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 2, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 3, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 4, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 5, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 6, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 7, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 8, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 9, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 10, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 11, 13),
-        rainyPercent: 30),
-    Weather(
-        temp: 20,
-        tempMax: 25,
-        tempMin: 15,
-        description: '雪',
-        lon: 25,
-        lat: 30,
-        icon: 'hogehoge',
-        time: DateTime(2023, 10, 12, 13),
-        rainyPercent: 30),
-  ];
+  List<Weather>? dailyWeather;
 
   List<String> weekDay = ['月', '火', '水', '木', '金', '土', '日'];
 
@@ -159,8 +38,12 @@ class _TopPageState extends State<TopPage> {
                     address = response['address'].toString();
                     errorMessage = null;
                     currentWeather = await Weather.getCurrentWeather(value);
-                    threeHourlyWeather = await Weather.get3HourlyWeather(
-                        lon: currentWeather!.lon!, lat: currentWeather!.lat!);
+                    Map<String, List<Weather>>? weatherForecast =
+                        await Weather.getForecast(
+                            lon: currentWeather!.lon!,
+                            lat: currentWeather!.lat!);
+                    threeHourlyWeather = weatherForecast?['threeHourly'];
+                    dailyWeather = weatherForecast?['daily'];
                   }
                   setState(() {});
                 },
@@ -231,58 +114,58 @@ class _TopPageState extends State<TopPage> {
             Divider(
               height: 0,
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Column(
-                    children: dailyWeather.map((weather) {
-                      return Container(
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                                width: 100,
-                                child: Text(
-                                    '${weekDay[weather.time!.weekday - 1]}曜日')),
-                            Row(
-                              children: [
-                                Icon(Icons.wb_sunny_sharp),
-                                Text(
-                                  '${weather.rainyPercent}%',
-                                  style:
-                                      TextStyle(color: Colors.lightBlueAccent),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              width: 100,
+            dailyWeather == null
+                ? Container()
+                : Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          children: dailyWeather!.map((weather) {
+                            return Container(
+                              height: 50,
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '${weather.tempMax}℃',
-                                    style: TextStyle(fontSize: 16),
+                                  Container(
+                                      width: 100,
+                                      child: Text(
+                                          '${weekDay[weather.time!.weekday - 1]}曜日')),
+                                  Row(
+                                    children: [
+                                      Image.network(
+                                          'https://openweathermap.org/img/wn/${weather.icon}.png'),
+                                    ],
                                   ),
-                                  Text(
-                                    '${weather.tempMin}℃',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black.withOpacity(0.4)),
+                                  Container(
+                                    width: 100,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '${weather.tempMax}℃',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        Text(
+                                          '${weather.tempMin}℃',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black
+                                                  .withOpacity(0.4)),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            )
+                      ),
+                    ),
+                  )
           ],
         ),
       ),
