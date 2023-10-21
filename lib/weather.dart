@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:api_practice/zip_code.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 class Weather {
   int? temp; //気温
@@ -56,8 +57,9 @@ class Weather {
     }
   }
 
-  static Future<List<Weather>?> get3HourlyWeather(
+  static Future<Map<String, List<Weather>>?> getForecast(
       {required double lon, required double lat}) async {
+    Map<String, List<Weather>> response = {};
     String url =
         "https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}${publicParameter}";
 
@@ -69,11 +71,21 @@ class Weather {
         return Weather(
           time: DateTime.parse(weather['dt_txt']),
           temp: weather['main']['temp'].toInt(),
+          tempMax: weather['main']['temp_max'].toInt(),
+          tempMin: weather['main']['temp_min'].toInt(),
           icon: weather['weather'][0]['icon'],
         );
       }).toList();
+      List<Weather> dailyWeather = [];
+      threeHourlyWeather.forEach((weather) {
+        if (DateFormat('H').format(weather.time!) == '15') {
+          dailyWeather.add(weather);
+        }
+      });
 
-      return threeHourlyWeather;
+      response['threeHourly'] = threeHourlyWeather;
+      response['daily'] = dailyWeather;
+      return response;
     } catch (e) {
       print(e);
       return null;
